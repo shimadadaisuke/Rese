@@ -1,0 +1,40 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid black;
+    padding: 5px;
+    vertical-align: top;
+  }
+  
+  .date-cell {
+    text-align: left;
+  }
+  
+  .event-cell {
+    text-align: center;
+  }
+  
+  .empty-cell {
+    text-align: center;
+  }
+  
+  .navigation {
+    margin-bottom: 10px;
+  }
+  
+  .prev-month, .next-month {
+    margin-right: 10px;
+  }
+  
+  .holiday {
+    background-color: yellow;
+  }
+  
+  .holiday-name {
+    background-color: purple;
+    color: white;
+  }
+  

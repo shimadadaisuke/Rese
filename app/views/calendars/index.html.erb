@@ -1,0 +1,91 @@
+<h1>カレンダー</h1>
+<div class="current-month-container">
+  <h2 class="current-month"><%= @current_month.strftime("%Y年%m月") %></h2>
+</div>
+
+<div class="navigation">
+  <%= link_to '前月', calendars_path(month: @current_month.prev_month), class: 'prev-month' %>
+  <%= link_to '当月', calendars_path(month: Date.today.month), class: 'current-month' %>
+  <div class="next-month">
+    <%= link_to '翌月', calendars_path(month: @current_month.next_month) %>
+  </div>
+</div>
+
+<style>
+  .navigation {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .current-month-container {
+    display: flex;
+    #justify-content: center;
+  }
+
+  .current-month {
+    margin: 0;
+  }
+
+  .holiday-row td {
+    background-color: yellow;
+  }
+
+  .holiday-cell {
+    background-color: yellow;
+    color: black;
+  }
+
+  .holiday-name {
+    background-color: purple;
+    color: white;
+    margin-bottom: 5px;
+  }
+
+  .holiday-description {
+    color: black;
+  }
+</style>
+<table>
+  <tr>
+    <th>日</th>
+    <th>月</th>
+    <th>火</th>
+    <th>水</th>
+    <th>木</th>
+    <th>金</th>
+    <th>土</th>
+  </tr>
+
+  <% @weeks.each do |week| %>
+    <% holiday_row = week.any? { |day| day && weekend_or_holiday?(day[:date]) } %>
+    <tr <%= 'class="holiday-row"' if holiday_row %>>
+      <% week.each do |day| %>
+        <% if day.nil? %>
+          <td></td>
+        <% else %>
+          <td>
+            <% if day[:date].is_a?(Date) %>
+              <div style="text-align: left;"><%= day[:date].day %></div>
+              <% day[:holidays].each do |holiday| %>
+                <div class="holiday-name"><%= holiday %></div>
+              <% end %>
+              <% if weekend_or_holiday?(day[:date]) %>
+                <div class="<%= 'holiday-cell' if weekend_or_holiday?(day[:date]) %>">お休み</div>
+              <% end %>
+              <% day[:events].each do |event| %>
+                <div class="holiday-description" style="text-align: center;"><%= event[:start_time] %> - <%= event[:end_time] %></div>
+              <% end %>
+            <% else %>
+              <div style="text-align: center;"><%= day[:date] %></div>
+              <% day[:events].each do |event| %>
+                <div style="text-align: center;"><%= event %></div>
+              <% end %>
+            <% end %>
+          </td>
+        <% end %>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
