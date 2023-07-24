@@ -1,40 +1,57 @@
 table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid black;
-    padding: 5px;
-    vertical-align: top;
-  }
-  
-  .date-cell {
-    text-align: left;
-  }
-  
-  .event-cell {
-    text-align: center;
-  }
-  
-  .empty-cell {
-    text-align: center;
-  }
-  
-  .navigation {
-    margin-bottom: 10px;
-  }
-  
-  .prev-month, .next-month {
-    margin-right: 10px;
-  }
-  
-  .holiday {
-    background-color: yellow;
-  }
-  
-  .holiday-name {
-    background-color: purple;
-    color: white;
-  }
-  
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 5px;
+  vertical-align: top;
+}
+
+.date-cell, .empty-cell, .event-cell {
+  text-align: center;
+}
+
+.navigation {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prev-month, .next-month {
+  margin-right: 10px;
+}
+
+.current-month-container {
+  display: flex;
+  #justify-content: center;  /* This line is commented out. If it's needed, please remove the '#' */
+}
+
+.current-month {
+  margin: 0;
+}
+
+.holiday-row td, .holiday-cell {
+  background-color: yellow;
+  color: black;
+}
+
+.holiday-name {
+  background-color: purple;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.holiday-description {
+  color: black;
+}
+
+.date-link:hover {
+  background-color: #f5f5f5; 
+}
+
+.today {
+  background-color: #FFCCCC; /* ここではライトピンク色を使用しています */
+}

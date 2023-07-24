@@ -73,3 +73,5 @@ end
 
 
 gem 'holidays'
+
+gem "webpacker", "~> 5.4"

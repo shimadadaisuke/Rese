@@ -11,42 +11,6 @@
   </div>
 </div>
 
-<style>
-  .navigation {
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .current-month-container {
-    display: flex;
-    #justify-content: center;
-  }
-
-  .current-month {
-    margin: 0;
-  }
-
-  .holiday-row td {
-    background-color: yellow;
-  }
-
-  .holiday-cell {
-    background-color: yellow;
-    color: black;
-  }
-
-  .holiday-name {
-    background-color: purple;
-    color: white;
-    margin-bottom: 5px;
-  }
-
-  .holiday-description {
-    color: black;
-  }
-</style>
 <table>
   <tr>
     <th>日</th>
@@ -59,28 +23,30 @@
   </tr>
 
   <% @weeks.each do |week| %>
-    <% holiday_row = week.any? { |day| day && weekend_or_holiday?(day[:date]) } %>
-    <tr <%= 'class="holiday-row"' if holiday_row %>>
+    <tr>
       <% week.each do |day| %>
         <% if day.nil? %>
           <td></td>
         <% else %>
-          <td>
-            <% if day[:date].is_a?(Date) %>
-              <div style="text-align: left;"><%= day[:date].day %></div>
+          <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
+          <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
+          <td class="<%= today_class %>">
+            <%= link_to new_reservation_path(date: day[:date]), class: 'date-link' do %>
+              <div class="date-cell">
+                <%= day[:date].day %>
+              </div>
+              <% reservations.each do |reservation| %>
+                <div class="reservation-info">
+                  <%= "#{reservation.hour}:#{reservation.minute}" %>
+                  <%= reservation.name %>
+                  <%= reservation.menu %>
+                </div>
+              <% end %>
               <% day[:holidays].each do |holiday| %>
                 <div class="holiday-name"><%= holiday %></div>
               <% end %>
               <% if weekend_or_holiday?(day[:date]) %>
-                <div class="<%= 'holiday-cell' if weekend_or_holiday?(day[:date]) %>">お休み</div>
-              <% end %>
-              <% day[:events].each do |event| %>
-                <div class="holiday-description" style="text-align: center;"><%= event[:start_time] %> - <%= event[:end_time] %></div>
-              <% end %>
-            <% else %>
-              <div style="text-align: center;"><%= day[:date] %></div>
-              <% day[:events].each do |event| %>
-                <div style="text-align: center;"><%= event %></div>
+                <div class="holiday-cell">お休み</div>
               <% end %>
             <% end %>
           </td>
@@ -88,4 +54,4 @@
       <% end %>
     </tr>
   <% end %>
-</table>
+  </table>
