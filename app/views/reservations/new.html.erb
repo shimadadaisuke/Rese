@@ -30,7 +30,7 @@
       <br>
 
       <%= form.label :category, class: 'field' %>
-      <%= form.select :category, ['予約登録', '予約削除', '空き登録', '変更フラグ'], { prompt: '' }, { required: true, id: 'category_select' } %>
+      <%= form.select :category, ['予約登録', '空き枠登録', '予定変更'], { prompt: '' }, { required: true, id: 'category_select' } %>
       <br>
 
       <%= form.label :time, class: 'field' %>
@@ -59,20 +59,11 @@
     <!-- 他の入力フィールドをここに追加 -->
     <br>
     <div class="actions">
-      <%= form.submit '予約する', id: 'reservation_button', disabled: true %>
+      <%= form.submit '予約登録', id: 'reservation_button', disabled: true %>
 
     </div>
 
   <% end %>
-
-  <%= form_with model: @reservation, id: 'delete_reservation_form', data: { remote: true } do |form| %>
-    
-    <%= button_to '予約削除', @reservation, method: :delete, id: 'delete_button', remote: true, disabled: true %>
-    
-  <% end %>
-  
-  
-
 
   <!-- 他のHTML要素やスクリプトなどをここに追加 -->
 
@@ -86,7 +77,6 @@
       var dayoffSelect = document.getElementById('dayoff_select');
       var fullhouseSelect = document.getElementById('fullhouse_select');
       var reservationButton = document.getElementById('reservation_button');
-      var deleteButton = document.getElementById('delete_button');
 
 
       function updateFieldsState() {
@@ -98,8 +88,7 @@
         menuInput.disabled = true;
         dayoffSelect.disabled = true;
         fullhouseSelect.disabled = true;
-        reservationButton.disabled = true; 
-        deleteButton.disabled = true;
+        reservationButton.disabled = true;
 
         if (selectedCategory === '予約登録') {
           timeSelect.disabled = false;
@@ -107,21 +96,10 @@
           nameInput.disabled = false;
           menuInput.disabled = false;
           reservationButton.disabled = false;
-        } else if (selectedCategory === '予約削除') {
+        } else if (selectedCategory === '空き枠登録') {
           timeSelect.disabled = false;
           minuteSelect.disabled = false;
-          nameInput.disabled = false;
-          menuInput.disabled = true;
-          dayoffSelect.disabled = true;
-          fullhouseSelect.disabled = true;
-          deleteButton.disabled = false;
-
-        } else if (selectedCategory === '空き登録') {
-          timeSelect.disabled = false;
-          minuteSelect.disabled = false;
-          nameInput.disabled = true;
-          menuInput.disabled = true;
-        } else if (selectedCategory === '変更フラグ') {
+        } else if (selectedCategory === '予定変更') {
           dayoffSelect.disabled = false;
           fullhouseSelect.disabled = false;
         }

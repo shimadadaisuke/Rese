@@ -1,4 +1,6 @@
 class ReservationsController < ApplicationController
+  before_action :set_calendar_variables, only: [:new, :create, :index]
+
   def new
     @reservation = Reservation.new(date: params[:date])
     # 他の処理...
@@ -10,23 +12,15 @@ class ReservationsController < ApplicationController
     if @reservation.save
       redirect_to calendars_path, notice: '予約が作成されました。'
     else
-      set_calendar_variables
       render :index
     end
   end
 
   def destroy
-    reservation = Reservation.find_by(date: params[:date], hour: params[:hour], minute: params[:minute], name: params[:name])
-
-    if reservation
-      reservation.destroy
-      redirect_to calendars_path, notice: '予約を削除しました。'
-    else
-      redirect_to calendars_path, alert: '予約が見つかりませんでした。'
-    end
+    reservation = Reservation.find(params[:id])
+    reservation.destroy
+    head :no_content
   end
-  
-  
 
   private
 

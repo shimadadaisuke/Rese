@@ -8,6 +8,7 @@ class CalendarsController < ApplicationController
     @reservations = Reservation.where(date: @current_month.at_beginning_of_month.beginning_of_day..@current_month.at_end_of_month.end_of_day)
     @reservations_by_date = @reservations.group_by { |r| r.date.to_date }
     @reservation = Reservation.new
+    
   end
 
   def create

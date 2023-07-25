@@ -1,3 +1,13 @@
+<head>
+  <title>RRite</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="csrf-param" content="authenticity_token">
+  <meta name="csrf-token" content="dhd2msD3D67FTCAhIgrX6d-tp5eqrCl9SKeQggBjvQD1bfwKOMgA4wzAQmp9TuN3lqyfAmSFEUve3oAUcRHaNw">
+
+  <link rel="stylesheet" href="/assets/application-54a9138365d28922f604fcf802d948cf1c56f0008e693dceed297b319ff0bf95.css" data-turbo-track="reload">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
 <h1>カレンダー</h1>
 <div class="current-month-container">
   <h2 class="current-month"><%= @current_month.strftime("%Y年%m月") %></h2>
@@ -31,27 +41,50 @@
           <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
           <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
           <td class="<%= today_class %>">
-            <%= link_to new_reservation_path(date: day[:date]), class: 'date-link' do %>
-              <div class="date-cell">
-                <%= day[:date].day %>
+            <div class="date-cell">
+              <%= link_to day[:date].day, new_reservation_path(date: day[:date]), class: 'date-link' %>
+            </div>
+            <% reservations.each do |reservation| %>
+              <div class="reservation-info" data-reservation-id="<%= reservation.id %>">
+                <%= link_to "#", class: "delete-button", "data-reservation-id": reservation.id do %>
+                  <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu}" %>
+                <% end %>
               </div>
-              <% reservations.each do |reservation| %>
-                <div class="reservation-info">
-                  <%= "#{reservation.hour}:#{reservation.minute}" %>
-                  <%= reservation.name %>
-                  <%= reservation.menu %>
-                </div>
-              <% end %>
-              <% day[:holidays].each do |holiday| %>
-                <div class="holiday-name"><%= holiday %></div>
-              <% end %>
-              <% if weekend_or_holiday?(day[:date]) %>
-                <div class="holiday-cell">お休み</div>
-              <% end %>
+            <% end %>
+            <% day[:holidays].each do |holiday| %>
+              <div class="holiday-name"><%= holiday %></div>
+            <% end %>
+            <% if weekend_or_holiday?(day[:date]) %>
+              <div class="holiday-cell">お休み</div>
             <% end %>
           </td>
         <% end %>
       <% end %>
     </tr>
   <% end %>
-  </table>
+</table>
+
+<script>
+$(document).ready(function() {
+  $(".delete-button").on("click", function(event) {
+    event.preventDefault();
+    var reservationId = $(this).data("reservation-id");
+    var reservationDetail = $(this).text();
+    if (confirm("選択した予約情報を削除するよ。\n\n" + "【予約情報】" + reservationDetail)) {
+      $.ajax({
+        method: "DELETE",
+        url: "/reservations/" + reservationId + "/destroy",
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+        },
+        success: function() {
+          location.reload();
+        },
+        error: function(xhr, textStatus, errorThrown) {
+          alert("再度削除を実施し、削除されない場合、改修が必要だと思うエラーです。: " + textStatus + " - " + errorThrown);
+        }
+      });
+    }
+  });
+});
+</script>

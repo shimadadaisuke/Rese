@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  resources :reservations, only: [:new, :create, :destroy]
+  resources :reservations, only: [:new, :create]
   get '/calendars', to: 'calendars#index'
-  delete '/reservations/:id', to: 'reservations#destroy', as: :destroy_reservation
+  delete '/reservations/:id/destroy', to: 'reservations#destroy', as: :destroy_reservation
+
 end
