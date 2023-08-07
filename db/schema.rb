@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_20_235733) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_01_015333) do
   create_table "calendars", force: :cascade do |t|
     t.date "date"
     t.string "event"
@@ -29,6 +29,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_20_235733) do
     t.string "menu"
     t.string "dayoff"
     t.string "fullhouse"
+    t.string "phone"
+    t.string "reservename"
   end
 
 end

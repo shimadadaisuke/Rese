@@ -1,0 +1,25 @@
+<h1>ご予約フォーム</h1>
+<%= form_with(model: @reservation, url: user_reservation_path, method: :post) do |form| %>
+  <p>
+    【日付】 <%= params[:date] || @reservation.date %> 
+    <br> 
+    【ご予約時間】 <%= params[:hour] || @reservation.hour %> : <%= params[:minute] || @reservation.minute %>
+  </p>
+
+  <!-- 追加された隠しフィールド -->
+  <%= form.hidden_field :date, value: params[:date] || @reservation.date %>
+  <%= form.hidden_field :hour, value: params[:hour] || @reservation.hour %>
+  <%= form.hidden_field :minute, value: params[:minute] || @reservation.minute %>
+
+  <%= form.label :reservename, 'ご予約名' %>
+  <%= form.text_field :reservename %>
+  <br>
+  <%= form.label :phone, 'お電話番号' %> 
+  <%= form.text_field :phone %>
+  <br>
+  <%= form.label :menu, 'メニュー' %>
+  <%= form.text_field :menu %>
+  <br>
+  <br>
+  <%= form.submit '予約する' %>
+<% end %>

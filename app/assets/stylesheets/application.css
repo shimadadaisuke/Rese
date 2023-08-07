@@ -1,3 +1,4 @@
+/* 既存のCSS */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -24,9 +25,9 @@ th, td {
   margin-right: 10px;
 }
 
-.current-month-container {
-  display: flex;
-  #justify-content: center;  /* This line is commented out. If it's needed, please remove the '#' */
+/* 追加したCSS */
+.change-button {
+  margin-left: 11px; /* 適宜調整してください */
 }
 
 .current-month {
@@ -54,4 +55,75 @@ th, td {
 
 .today {
   background-color: #FFCCCC; /* ここではライトピンク色を使用しています */
+}
+
+.empty-reservation {
+  background-color: #cce5ff; /* 薄いブルーの背景色を指定 */
+}
+
+/* "臨時休業"の背景色を緑にする */
+.holiday-cell.temp-closed {
+  background-color: #47e654;
+}
+
+/* "満員"の背景色を赤にする */
+.change {
+  background-image: linear-gradient(to right, #ff5a9f, #ff77a2);
+}
+
+/* メッセージの色を変更する */
+.alert-notice {
+  background-color: green;
+  color: white;
+}
+
+.alert-alert {
+  background-color: red;
+  color: white;
+}
+
+/* 管理者専用ボタンのスタイル */
+.admin-button {
+  font-size: 12px;
+  padding: 4px 8px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px; /* 適切なマージンを設定してください */
+
+}
+
+.body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 通常のカレンダー画面用のスタイル */
+body.calendars {
+  /* 通常のカレンダー画面の背景色を指定（半透明の淡いグリーン色） */
+  background-color: rgba(144, 238, 144, 0.02);
+}
+
+
+/* 管理者ページ用のスタイル */
+body.admin {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 管理者ページ_施術情報のスタイル */
+.user-dropdown {
+  text-align: right;
+
+  .no-border {
+    border: none;
+    outline: none;
+    background-color: transparent;
 }

@@ -1,90 +1,154 @@
-<head>
-  <title>RRite</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="csrf-param" content="authenticity_token">
-  <meta name="csrf-token" content="dhd2msD3D67FTCAhIgrX6d-tp5eqrCl9SKeQggBjvQD1bfwKOMgA4wzAQmp9TuN3lqyfAmSFEUve3oAUcRHaNw">
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>RRite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-param" content="authenticity_token">
+    <meta name="csrf-token" content="dhd2msD3D67FTCAhIgrX6d-tp5eqrCl9SKeQggBjvQD1bfwKOMgA4wzAQmp9TuN3lqyfAmSFEUve3oAUcRHaNw">
+    <link rel="stylesheet" href="/assets/application.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-  <link rel="stylesheet" href="/assets/application-54a9138365d28922f604fcf802d948cf1c56f0008e693dceed297b319ff0bf95.css" data-turbo-track="reload">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  </head>
 
-<h1>カレンダー</h1>
-<div class="current-month-container">
-  <h2 class="current-month"><%= @current_month.strftime("%Y年%m月") %></h2>
-</div>
+  <body class="calendars">
+    <div class="header-right">
+      <!-- 管理者専用ボタンを追加 -->
+      <button class="admin-button" id="admin-button">管理者専用</button>
+    </div>
 
-<div class="navigation">
-  <%= link_to '前月', calendars_path(month: @current_month.prev_month), class: 'prev-month' %>
-  <%= link_to '当月', calendars_path(month: Date.today.month), class: 'current-month' %>
-  <div class="next-month">
-    <%= link_to '翌月', calendars_path(month: @current_month.next_month) %>
-  </div>
-</div>
-
-<table>
-  <tr>
-    <th>日</th>
-    <th>月</th>
-    <th>火</th>
-    <th>水</th>
-    <th>木</th>
-    <th>金</th>
-    <th>土</th>
-  </tr>
-
-  <% @weeks.each do |week| %>
-    <tr>
-      <% week.each do |day| %>
-        <% if day.nil? %>
-          <td></td>
-        <% else %>
-          <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
-          <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
-          <td class="<%= today_class %>">
-            <div class="date-cell">
-              <%= link_to day[:date].day, new_reservation_path(date: day[:date]), class: 'date-link' %>
-            </div>
-            <% reservations.each do |reservation| %>
-              <div class="reservation-info" data-reservation-id="<%= reservation.id %>">
-                <%= link_to "#", class: "delete-button", "data-reservation-id": reservation.id do %>
-                  <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu}" %>
-                <% end %>
-              </div>
-            <% end %>
-            <% day[:holidays].each do |holiday| %>
-              <div class="holiday-name"><%= holiday %></div>
-            <% end %>
-            <% if weekend_or_holiday?(day[:date]) %>
-              <div class="holiday-cell">お休み</div>
-            <% end %>
-          </td>
-        <% end %>
+    <!-- ポップアップ用のダイアログ -->
+    <div id="password-dialog" title="パスワード入力" style="display: none;">
+      <%= form_tag('/login', id: 'password-form') do %>
+        <!-- CSRFトークンをフォームに含める -->
+        <%= csrf_meta_tags %>
+        <label for="password">パスワード</label>
+        <input type="password" id="password" name="password" autocomplete="off">
+        <button type="submit" class="btn btn-primary">送信</button>
       <% end %>
-    </tr>
-  <% end %>
-</table>
+    </div>
 
-<script>
-$(document).ready(function() {
-  $(".delete-button").on("click", function(event) {
-    event.preventDefault();
-    var reservationId = $(this).data("reservation-id");
-    var reservationDetail = $(this).text();
-    if (confirm("選択した予約情報を削除するよ。\n\n" + "【予約情報】" + reservationDetail)) {
-      $.ajax({
-        method: "DELETE",
-        url: "/reservations/" + reservationId + "/destroy",
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-        },
-        success: function() {
-          location.reload();
-        },
-        error: function(xhr, textStatus, errorThrown) {
-          alert("再度削除を実施し、削除されない場合、改修が必要だと思うエラーです。: " + textStatus + " - " + errorThrown);
-        }
+    <h1>カレンダー</h1>
+    <div class="current-month-container">
+      <h2 class="current-month"><%= @current_month.strftime("%Y年%m月") %></h2>
+    </div>
+
+    <div class="navigation">
+    <% if @current_month + 5.month>= Date.today.beginning_of_month %>
+      <%= link_to '＜', calendars_path(month: @current_month.prev_month), class: 'prev-month' %>
+    <% else %>
+      <%= '－' %>
+    <% end %>
+
+    <%= link_to '当月', calendars_path(month: Date.today.month), class: 'current-month' %>
+
+    <% if @current_month - 5.month <= Date.today.end_of_month %>
+      <%= link_to '＞', calendars_path(month: @current_month.next_month) %>
+    <% else %>
+      <%= '－' %>
+    <% end %>
+  </div>
+
+    <table>
+      <tr>
+        <th>日</th>
+        <th>月</th>
+        <th>火</th>
+        <th>水</th>
+        <th>木</th>
+        <th>金</th>
+        <th>土</th>
+      </tr>
+
+      <% @weeks.each do |week| %>
+        <tr>
+          <% week.each do |day| %>
+            <% if day.nil? %>
+              <td></td>
+            <% else %>
+              <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
+              <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
+              <td class="<%= today_class %>">
+                <div class="date-cell">
+                  <%= day[:date].day %>
+                </div>
+                <% reservations.each do |reservation| %>
+                  <% if ['臨時休暇', '空き', '満員','ご予約受付中'].include?(reservation.name) %>
+                    <div class="<%= reservation.name == '臨時休暇' ? 'holiday-cell' : reservation.name == 'ご予約受付中' ? 'holiday-cell temp-closed'  : reservation.name == '空き' ? 'reservation-info empty-reservation' : reservation.name == '満員' ? 'change' : '' %>" data-reservation-id="<%= reservation.id %>">
+                      <% if reservation.name == '空き' %>
+                        <% if reservation.hour.present? && reservation.minute.present? %>
+                          
+                          <%= link_to "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu}", user_reservation_path(date: day[:date], hour: reservation.hour, minute: reservation.minute), class: 'reservation-link' %>
+
+                        <% else %>
+                          <%= link_to "#{reservation.name} #{reservation.menu}", '#', class: 'reservation-link' %>
+                        <% end %>
+                      <% else %>
+                        <% if reservation.hour.present? && reservation.minute.present? %>
+                          <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name}" %>
+                        <% else %>
+                          <%= "#{reservation.name} " %>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% end %>
+                <% day[:holidays].each do |holiday| %>
+                  <div class="holiday-name"><%= holiday %></div>
+                <% end %>
+                <% if weekend_or_holiday?(day[:date]) %>
+                  <div class="holiday-cell">お休み</div>
+                <% end %>
+              </td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+      
+      <script>
+      $(document).ready(function() {
+        // ポップアップを初期化
+        $("#password-dialog").dialog({
+          autoOpen: false,
+          resizable: false,
+          height: "auto",
+          width: 400,
+          modal: true,
+          buttons: {
+            "キャンセル": function() {
+              $(this).dialog("close");
+            }
+          }
+        });
+    
+        // ボタンをクリックした際にポップアップを表示する
+        $("#admin-button").on("click", function(event) {
+          event.preventDefault();
+          $("#password-dialog").dialog("open");
+        });
+    
+        // フォームの送信イベントを処理する
+        $("#password-form").on("submit", function(event) {
+          event.preventDefault();
+          var form = $(this);
+          var password = $("#password").val();
+    
+          // パスワードのバリデーションを行う
+          if (password === "goda") {
+            form.off("submit").submit();
+          } else {
+            alert("パスワードが違います。");
+          }
+        });
+    
+        // フラッシュメッセージの表示
+        <% if flash[:notice] %>
+          alert('<%= j flash[:notice] %>');
+        <% end %>
       });
-    }
-  });
-});
-</script>
+    </script>
+    
+
+  </body>
+  </html>

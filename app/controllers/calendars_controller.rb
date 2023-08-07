@@ -2,15 +2,22 @@ require 'date'
 require 'holidays'
 
 class CalendarsController < ApplicationController
+  include CalendarsHelper
+
   def index
-    @current_month = params[:month] ? Date.parse("01-#{params[:month]}-#{Date.today.year}") : Date.today.at_beginning_of_month
+    selected_month = params[:month]
+    if selected_month.present?
+      @current_month = Date.parse("01-#{selected_month}-#{Date.today.year}")
+    else
+      @current_month = Date.today.at_beginning_of_month
+    end
+    
     @weeks = generate_calendar_weeks(@current_month)
     @reservations = Reservation.where(date: @current_month.at_beginning_of_month.beginning_of_day..@current_month.at_end_of_month.end_of_day)
     @reservations_by_date = @reservations.group_by { |r| r.date.to_date }
     @reservation = Reservation.new
-    
   end
-
+  
   def create
     @reservation = Reservation.new(reservation_params)
 
@@ -48,10 +55,6 @@ class CalendarsController < ApplicationController
     end
 
     weeks
-  end
-
-  def weekend_or_holiday?(date)
-    date.monday? || date.sunday? || japanese_holidays(date).any?
   end
 
   def japanese_holidays(date)

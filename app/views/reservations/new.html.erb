@@ -1,24 +1,18 @@
 <!DOCTYPE html>
+ <% flash.each do |alert, value| %>
+    <div class="alert-<%= alert %>">
+      <%= value %>
+    </div>
+  <% end %>
+
 <html>
 <head>
   <meta charset="UTF-8">
-  
   <title>New Reservation</title>
-  <%= link_to 'Back', calendars_path %>
+  <%= link_to 'Back', 'javascript:history.back()', class: 'calendar-link' %>
 
-  <!-- 他の必要なメタタグやCSSファイルのリンクなどをここに追加 -->
-  <style>
-    .field.disabled {
-      pointer-events: none;
-      opacity: 0.5;
-    }
+  <link rel="stylesheet" href="styles.css">
 
-    /* 予約削除ボタンを表示するためのスタイル */
-    .delete-button {
-      margin-left: 10px; /* 適宜調整してください */
-    }
-
-  </style>
 </head>
 <body>
   <h1>New Reservation</h1>
@@ -47,12 +41,18 @@
       
       <br>
 
+      <%= form.label :phone, class: 'field' %>
+      <%= form.text_field :phone, id: 'reservation_phone', class: 'field' %>
+      
+      <br>
+
+
       <%= form.label :dayoff, class: 'field' %>
-      <%= form.select :dayoff, ['ON', 'OFF'], { prompt: '' }, { required: true, class: 'field', id: 'dayoff_select' } %>
+      <%= form.select :dayoff, ['ON'], { prompt: '' }, { class: 'field', id: 'dayoff_select' } %>
       <br>
 
       <%= form.label :fullhouse, class: 'field' %>
-      <%= form.select :fullhouse, ['ON', 'OFF'], { prompt: '' }, { required: true, class: 'field', id: 'fullhouse_select' } %>
+      <%= form.select :fullhouse, ['ON'], { prompt: '' }, { class: 'field', id: 'fullhouse_select' } %>
       <br>
     </div>
 
@@ -60,12 +60,12 @@
     <br>
     <div class="actions">
       <%= form.submit '予約登録', id: 'reservation_button', disabled: true %>
+      <%= button_tag '空き枠登録', id: 'empty_reservation_button', disabled: true %>
+      <%= button_tag '予定変更', class: 'change-button', disabled: true %> 
 
     </div>
 
   <% end %>
-
-  <!-- 他のHTML要素やスクリプトなどをここに追加 -->
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -74,10 +74,12 @@
       var minuteSelect = document.getElementById('minute_select');
       var nameInput = document.getElementById('reservation_name');
       var menuInput = document.getElementById('reservation_menu');
+      var phoneInput = document.getElementById('reservation_phone');
       var dayoffSelect = document.getElementById('dayoff_select');
       var fullhouseSelect = document.getElementById('fullhouse_select');
       var reservationButton = document.getElementById('reservation_button');
-
+      var emptyReservationButton = document.getElementById('empty_reservation_button');
+      var changeButton = document.querySelector('.change-button'); 
 
       function updateFieldsState() {
         var selectedCategory = categorySelect.value;
@@ -86,22 +88,29 @@
         minuteSelect.disabled = true;
         nameInput.disabled = true;
         menuInput.disabled = true;
+        phoneInput.disabled = true;
         dayoffSelect.disabled = true;
         fullhouseSelect.disabled = true;
         reservationButton.disabled = true;
+        emptyReservationButton.disabled = true;
+        changeButton.disabled = true; 
 
         if (selectedCategory === '予約登録') {
           timeSelect.disabled = false;
           minuteSelect.disabled = false;
           nameInput.disabled = false;
           menuInput.disabled = false;
+          phoneInput.disabled = false;
           reservationButton.disabled = false;
         } else if (selectedCategory === '空き枠登録') {
           timeSelect.disabled = false;
           minuteSelect.disabled = false;
+          menuInput.disabled = false;
+          emptyReservationButton.disabled = false;
         } else if (selectedCategory === '予定変更') {
           dayoffSelect.disabled = false;
           fullhouseSelect.disabled = false;
+          changeButton.disabled = false; 
         }
       }
 
