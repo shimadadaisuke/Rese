@@ -23,4 +23,7 @@ Rails.application.routes.draw do
 
   # ユーザフォームルートを追加
   get '/calendars/user_reservation', to: 'reservations#user', as: :user_reservation
+
+  post '/admin/copy_reservations', to: 'admin#copy_reservations', as: :copy_reservations
+
 end
