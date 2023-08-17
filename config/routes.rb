@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root 'calendars#index'
   resources :reservations, only: [:new, :create] do
     member do
       patch 'copy_reservename_to_name'
