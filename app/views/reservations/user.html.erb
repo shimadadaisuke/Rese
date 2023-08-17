@@ -1,25 +1,39 @@
 <h1>ご予約フォーム</h1>
+
 <%= form_with(model: @reservation, url: user_reservation_path, method: :post) do |form| %>
+  <!-- 予約日と時間の表示 -->
   <p>
-    【日付】 <%= params[:date] || @reservation.date %> 
-    <br> 
-    【ご予約時間】 <%= params[:hour] || @reservation.hour %> : <%= params[:minute] || @reservation.minute %>
+    【日付】 
+    <% date = Date.parse(params[:date] || @reservation.date) %>
+    <%= date.strftime("%Y-%m-%d (%a)") %> <!-- URLパラメータまたは予約オブジェクトから日付を取得し、曜日を表示 -->
+      <br> 
+    【ご予約時間】 <%= params[:hour] || @reservation.hour %> : <%= params[:minute] || @reservation.minute %> <!-- URLパラメータまたは予約オブジェクトから時刻を表示 -->
   </p>
 
-  <!-- 追加された隠しフィールド -->
+  <!-- 予約日と時間の隠しフィールド（フォーム送信時にサーバーへ渡される） -->
   <%= form.hidden_field :date, value: params[:date] || @reservation.date %>
   <%= form.hidden_field :hour, value: params[:hour] || @reservation.hour %>
   <%= form.hidden_field :minute, value: params[:minute] || @reservation.minute %>
 
+  <!-- ご予約名の入力フィールド（必須） -->
   <%= form.label :reservename, 'ご予約名' %>
-  <%= form.text_field :reservename %>
+  <%= form.text_field :reservename, required: true %>
+  
   <br>
+
+  <!-- 電話番号の入力フィールド（必須） -->
   <%= form.label :phone, 'お電話番号' %> 
-  <%= form.text_field :phone %>
+  <%= form.text_field :phone, required: true %>
+  
   <br>
+
+  <!-- メニューの入力フィールド（必須） -->
   <%= form.label :menu, 'メニュー' %>
-  <%= form.text_field :menu %>
+  <%= form.text_field :menu, required: true %>
+  
   <br>
   <br>
+
+  <!-- 予約を送信するボタン -->
   <%= form.submit '予約する' %>
 <% end %>

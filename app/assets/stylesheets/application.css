@@ -122,8 +122,21 @@ body.admin {
 .user-dropdown {
   text-align: right;
 
-  .no-border {
-    border: none;
-    outline: none;
-    background-color: transparent;
 }
+
+.selected-date {
+  background-color: #0000ff !important; /* 青色に変更 */
+}
+  
+.past-date {
+  background-color: #f0f0f0; /* グレーの背景 */
+  color: #aaa; /* グレーの文字色 */
+}
+
+.past-date .reservation-link {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: line-through; /* オプション: 取り消し線を追加してリンクが無効であることを明示する */
+}
+
+  

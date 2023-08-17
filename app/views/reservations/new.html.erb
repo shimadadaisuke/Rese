@@ -19,6 +19,7 @@
   <%= form_with model: @reservation, url: reservations_path, id: 'reservation_form' do |form| %>
 
     <div id="reservation_fields">
+    
       <%= form.label :date, class: 'field' %>
       <%= form.date_field :date, readonly: true, id: 'reservation_date', style: 'border: none;' %>
       <br>

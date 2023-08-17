@@ -1,95 +1,74 @@
 <head>
+  <!-- タイトル設定 -->
   <title>RRite_管理者専用ページ</title>
+  
+  <!-- レスポンシブデザイン対応のためのビューポート設定 -->
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  
+  <!-- クロスサイトリクエストフォージェリ (CSRF) 攻撃防止のためのトークン -->
   <meta name="csrf-param" content="authenticity_token">
   <meta name="csrf-token" content="dhd2msD3D67FTCAhIgrX6d-tp5eqrCl9SKeQggBjvQD1bfwKOMgA4wzAQmp9TuN3lqyfAmSFEUve3oAUcRHaNw">
+  
+  <!-- スタイルシートのリンク -->
   <link rel="stylesheet" href="/assets/application.css">
+  
+  <!-- jQueryの読み込み -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
-<!-- 管理者ページ内のリンク -->
-<%= link_to 'ユーザー画面へ', calendars_path %>
-
-<!-- 氏名情報表示のプルダウンメニュー -->
-<div class="user-dropdown">
-  <label for="user-select">施術情報：</label>
-  <select id="user-select">
-  <option value="" selected disabled>氏名を選択してください</option> 
-    <% @reservations.pluck(:name).uniq.compact.reject { |name| ['臨時休暇', '空き', '満員', 'ご予約受付中'].include?(name) }.each do |name| %>
-      <option value="<%= name %>"><%= name %></option>
-    <% end %>
-  </select>
-</div>
-
-<!-- ポップアップ用のダイアログ -->
-
-<script>
-  // HTMLエンティティをデコードするためのヘルパー関数
-  function decodeHTMLEntities(text) {
-    var textArea = document.createElement('textarea');
-    textArea.innerHTML = text;
-    return textArea.value;
-  }
-
-  // 日付をフォーマットするためのヘルパー関数
-  function formatDateWithWeekday(dateString) {
-    var options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
-    var date = new Date(dateString);
-    return date.toLocaleDateString('ja-JP', options);
-  }
-
-  $(document).ready(function() {
-    $("#user-select").on("change", function() {
-      var selectedUserName = $(this).val();
-
-      // ここで、選択されたユーザーに対する予約だけを取得します。
-      $.getJSON(`/admin/reservations?name=${encodeURIComponent(selectedUserName)}`, function(data) {
-        var popupMessage = "↓↓" + selectedUserName + "の履歴情報（登録情報：当月から前後6カ月）はこちら↓↓\n\n";
-        data.forEach(function(reservation) {
-          var formattedDate = formatDateWithWeekday(reservation.date);
-          popupMessage += "【日付】 " + formattedDate + "　" + " [メニュー] " + reservation.menu + "\n";
-        });
-
-        alert(popupMessage);
-      });
-    }); 
-  });
-</script>
-
 <body class="admin">
+  <!-- ユーザー画面へのリンク -->
+  <%= link_to 'ユーザー画面へ', calendars_path %>
+
+  <!-- 施術情報のドロップダウン選択リスト -->
+  <div class="user-dropdown">
+    <label for="user-select">施術情報：</label>
+    <select id="user-select">
+      <option value="" selected disabled>氏名を選択してください</option>
+      <% @reservations.pluck(:name).uniq.compact.reject { |name| ['臨時休暇', '空き', '満員', 'ご予約受付中'].include?(name) }.each do |name| %>
+      <option value="<%= name %>"><%= name %></option>
+      <% end %>
+    </select>
+  </div>
+  <br>
+  <!-- コピー実行ボタン -->
+  <button type="button" id="submit_button" style="float: right;">コピー実行</button>
+
+  <!-- タイトル部分 -->
   <div class="header-right">
     <h1>RRite_管理画面</h1>
     <style>
-    h1 {
-      background-color: #007bff;
-      color: #ffc;
-    }
-  </style>
-
+      h1 {
+        background-color: #007bff;
+        color: #ffc;
+      }
+    </style>
   </div>
 
-
+  <!-- 現在の月表示 -->
   <div class="current-month-container">
     <h2 class="current-month"><%= @current_month.strftime("%Y年%m月") %></h2>
   </div>
 
+  <!-- ナビゲーションリンク（前月、当月、次月へのリンク） -->
   <div class="navigation">
-  <% if @current_month + 5.month>= Date.today.beginning_of_month %>
+    <% if @current_month + 5.month >= Date.today.beginning_of_month %>
     <%= link_to '＜', admin_path(month: @current_month.prev_month), class: 'prev-month' %>
-  <% else %>
+    <% else %>
     <%= '－' %>
-  <% end %>
-
-  <%= link_to '当月', admin_path(month: Date.today.month), class: 'current-month' %>
-
-  <% if @current_month - 5.month <= Date.today.end_of_month %>
+    <% end %>
+    <%= link_to '当月', admin_path(month: Date.today.month), class: 'current-month' %>
+    <% if @current_month - 5.month <= Date.today.end_of_month %>
     <%= link_to '＞', admin_path(month: @current_month.next_month) %>
-  <% else %>
+    <% else %>
     <%= '－' %>
-  <% end %>
-</div>
+    <% end %>
+  </div>
 
+  <!-- 予約コピー用フォーム -->
+  <%= form_with(url: copy_reservations_path, method: :post, local: true, html: { id: 'copy_reservations_form' }) do |f| %>
   <table>
+    <!-- 曜日のヘッダー -->
     <tr>
       <th>日</th>
       <th>月</th>
@@ -99,110 +78,135 @@
       <th>金</th>
       <th>土</th>
     </tr>
-
+    <!-- 週ごとの処理 -->
     <% @weeks.each do |week| %>
-      <tr>
-        <% week.each do |day| %>
-          <% if day.nil? %>
-            <td></td>
+    <tr>
+      <!-- 日ごとの処理 -->
+      <% week.each do |day| %>
+      <% if day.nil? %>
+      <!-- 日付が存在しない場合 -->
+      <td></td>
+      <% else %>
+      <!-- 予約データの取得 -->
+      <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
+      <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
+      <td class="<%= today_class %>">
+        <!-- 日付セル -->
+        <div class="date-cell">
+          <%= radio_button_tag 'source_date', day[:date] %>
+          <%= check_box_tag "destination_dates[]", day[:date] %>
+          <%= link_to day[:date].day, new_reservation_path(date: day[:date]), class: 'date-link' %>
+        </div>
+        <!-- 予約情報の表示 -->
+        <% reservations.each do |reservation| %>
+        <% if reservation.name.present? %>
+        <div class="<%= reservation.name == '臨時休暇' ? 'holiday-cell' : reservation.name == 'ご予約受付中' ? 'holiday-cell temp-closed' : reservation.name == '空き' ? 'reservation-info empty-reservation' : reservation.name == '満員' ? 'change' : '' %>" data-reservation-id="<%= reservation.id %>">
+          <% if reservation.name == 'ご予約受付中' %>
+          <%= link_to "#", class: "action-button", "data-reservation-id": reservation.id do %>
+          <% if reservation.hour.present? && reservation.minute.present? %>
+          <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu} #{reservation.phone}" %>
           <% else %>
-            <% reservations = @reservations_by_date[day[:date].to_date] || [] %>
-            <% today_class = day[:date].to_date == Date.today ? 'today' : '' %>
-            <td class="<%= today_class %>">
-              <div class="date-cell">
-                <%= link_to day[:date].day, new_reservation_path(date: day[:date]), class: 'date-link' %>
-              </div>
-              <% reservations.each do |reservation| %>
-                <% if reservation.name.present? %>
-                <div class="<%= reservation.name == '臨時休暇' ? 'holiday-cell' : reservation.name == 'ご予約受付中' ? 'holiday-cell temp-closed' : reservation.name == '空き' ? 'reservation-info empty-reservation' : reservation.name == '満員' ? 'change' : '' %>" data-reservation-id="<%= reservation.id %>">
-                  <% if reservation.name == 'ご予約受付中' %>
-                    <%= link_to "#", class: "action-button", "data-reservation-id": reservation.id do %>
-                      <% if reservation.hour.present? && reservation.minute.present? %>
-                        <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu} #{reservation.phone}" %>
-                      <% else %>
-                        <%= "#{reservation.name} #{reservation.menu}" %>
-                      <% end %>
-                    <% end %> 
-                  <% else %>
-                    <%= link_to "#", class: "delete-button", "data-reservation-id": reservation.id do %>
-                      <% if reservation.hour.present? && reservation.minute.present? %>
-                        <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu} #{reservation.phone}" %>
-                      <% else %>
-                        <%= "#{reservation.name} #{reservation.menu}" %>
-                      <% end %>
-                    <% end %>
-                  <% end %>
-                </div>
-                <% end %>
-              <% end %>
-              <% day[:holidays].each do |holiday| %>
-                <div class="holiday-name"><%= holiday %></div>
-              <% end %>
-              <% if weekend_or_holiday?(day[:date]) %>
-                <div class="holiday-cell">お休み</div>
-              <% end %>
-            </td>
+          <%= "#{reservation.name} #{reservation.menu}" %>
           <% end %>
+          <% end %>
+          <% else %>
+          <%= link_to "#", class: "delete-button", "data-reservation-id": reservation.id do %>
+          <% if reservation.hour.present? && reservation.minute.present? %>
+          <%= "#{reservation.hour}:#{reservation.minute} #{reservation.name} #{reservation.menu} #{reservation.phone}" %>
+          <% else %>
+          <%= "#{reservation.name} #{reservation.menu}" %>
+          <% end %>
+          <% end %>
+          <% end %>
+        </div>
         <% end %>
-      </tr>
+        <% end %>
+        <!-- 休日の表示 -->
+        <% day[:holidays].each do |holiday| %>
+        <div class="holiday-name"><%= holiday %></div>
+        <% end %>
+        <!-- 週末または祝日の休み表示 -->
+        <% if weekend_or_holiday?(day[:date]) %>
+        <div class="holiday-cell">お休み</div>
+        <% end %>
+      </td>
+      <% end %>
+      <% end %>
+    </tr>
     <% end %>
-              </table>
+  </table>
+  <% end %>
 
-
-
-
-      <script>
-      $(document).ready(function() {
-          // "ご予約受付中" の場合の処理
-          $(".action-button").on("click", function(event) {
-              event.preventDefault();
-              var reservationId = $(this).data("reservation-id");
               
-              if (confirm("ご予約者様には連絡しましたか？\n予約情報をUpdateします。")) {
-                  $.ajax({
-                      method: "PATCH",
-                      url: `/reservations/${reservationId}/copy_reservename_to_name`,
-                      beforeSend: function(xhr) {
-                          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-                      },
-                      success: function() {
-                          alert("予約情報のUpdateが完了しました。");
-                          location.reload();
-                      },
-                      error: function(xhr, textStatus, errorThrown) {
-                          alert("エラーが発生しました: " + textStatus + " - " + errorThrown);
-                      }
-                  });
-              }
-          });
-      
-          // 削除の処理
-          $(".delete-button").on("click", function(event) {
-              event.preventDefault();
-              var reservationId = $(this).data("reservation-id");
-              var reservationDetail = $(this).text();
-      
-              if (confirm("選択した予約情報を削除するよ。\n\n" + "【予約情報】" + reservationDetail)) {
-                  $.ajax({
-                      method: "DELETE",
-                      url: "/reservations/" + reservationId + "/destroy",
-                      beforeSend: function(xhr) {
-                          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-                      },
-                      success: function() {
-                          location.reload();
-                      },
-                      error: function(xhr, textStatus, errorThrown) {
-                          alert("再度削除を実施し、削除されない場合、改修が必要だと思うエラーです。: " + textStatus + " - " + errorThrown);
-                      }
-                  });
-              }
-          });
-      });
-      </script>
-      </body>
+  <script>
+  $(document).ready(function() {
+    $('#submit_button').on('click', function() {
+      var selectedValue = $("input[name='source_date']:checked").val(); // ラジオボタンの選択値を取得
+      var checkedBoxes = $("input[name='destination_dates[]']:checked").length;
+      console.log("Selected value:", selectedValue); // 選択値をコンソールに出力
+      console.log("checkedBoxes value:", checkedBoxes); // 選択値をコンソールに出力
 
+      if (selectedValue === undefined) { // 選択されていない場合、undefinedになる
+        alert("ラジオボタン（日付左の〇ボタン）を選択してください。");
+        e.preventDefault(); // 送信を中止
+        return false; // こちらでも送信を中止
+      }
 
+      if (checkedBoxes === 0) {
+        alert("チェックボックス（日付左の□ボタン）を選択してください");
+        return;
+      }
 
+      // すべての検証が成功した場合、フォームを送信
+      $('#copy_reservations_form').submit();
+    });
 
+    // "ご予約受付中" の場合の処理
+    $(".action-button").on("click", function(event) {
+      event.preventDefault();
+      var reservationId = $(this).data("reservation-id");
+
+      if (confirm("ご予約者様には連絡しましたか？\n予約情報をUpdateします。")) {
+        $.ajax({
+          method: "PATCH",
+          url: `/reservations/${reservationId}/copy_reservename_to_name`,
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+          },
+          success: function() {
+            alert("予約情報のUpdateが完了しました。");
+            location.reload();
+          },
+          error: function(xhr, textStatus, errorThrown) {
+            alert("エラーが発生しました: " + textStatus + " - " + errorThrown);
+          }
+        });
+      }
+    });
+
+    // 削除の処理
+    $(".delete-button").on("click", function(event) {
+      event.preventDefault();
+      var reservationId = $(this).data("reservation-id");
+      var reservationDetail = $(this).text();
+
+      if (confirm("選択した予約情報を削除するよ。\n\n" + "【予約情報】" + reservationDetail)) {
+        $.ajax({
+          method: "DELETE",
+          url: "/reservations/" + reservationId + "/destroy",
+          beforeSend: function(xhr) {
+            xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+          },
+          success: function() {
+            location.reload();
+          },
+          error: function(xhr, textStatus, errorThrown) {
+            alert("再度削除を実施し、削除されない場合、改修が必要だと思うエラーです。: " + textStatus + " - " + errorThrown);
+          }
+        });
+      }
+    });
+  });
+</script>
+</body>
 </html>
