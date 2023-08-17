@@ -1,9 +1,7 @@
-class ReservationsController < ApplicationController
-  # ... 他のアクション ...
+class UserreservationsController < ApplicationController
 
   def user
     @reservation = Reservation.new
   end
 
-  # ... 他のアクション ...
 end
