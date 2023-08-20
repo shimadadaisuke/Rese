@@ -43,8 +43,10 @@ class ReservationsController < ApplicationController
   # ユーザー向けの予約作成
   def create_user_reservation
     @reservation = Reservation.new(reservation_params)
-    return if handle_existing_reservation
-
+    if handle_existing_reservation
+      return # 既存の予約を処理した場合はここで終了
+    end
+  
     if @reservation.save
       delete_old_data # 保存後、古いデータを削除
       redirect_to calendars_path(month: @reservation.date.strftime("%Y-%m"))
@@ -53,7 +55,17 @@ class ReservationsController < ApplicationController
       redirect_to new_reservation_path, alert: "何度やっても同じであれば、サーバ先の故障か改修が必要"
     end
   end
-
+    # 既存の"空き"という名前の予約を処理
+  def handle_existing_reservation
+    existing_reservation = Reservation.find_by(date: @reservation.date, hour: @reservation.hour, minute: @reservation.minute, name: '空き')
+    if existing_reservation
+      existing_reservation.update(name: 'ご予約受付中', reservename: @reservation.reservename, phone: @reservation.phone, menu: @reservation.menu)
+      flash[:notice] = "ご予約を受け付けました、改めてご連絡いたします。\n数日経過してもご連絡が無い場合は、\nお手数ですが、ご一報いただけますと幸いです。"
+      redirect_to calendars_path and return true
+    end
+    false
+  end
+  
   # reservenameをnameにコピー
   def copy_reservename_to_name
     @reservation = Reservation.find(params[:id])
@@ -77,15 +89,6 @@ class ReservationsController < ApplicationController
     end
   end
 
-  # 既存の"空き"という名前の予約を処理
-  def handle_existing_reservation
-    existing_reservation = Reservation.find_by(date: @reservation.date, hour: @reservation.hour, minute: @reservation.minute, name: '空き')
-    if existing_reservation
-      existing_reservation.update(name: 'ご予約受付中', reservename: @reservation.reservename, phone: @reservation.phone, menu: @reservation.menu)
-      flash[:notice] = "ご予約を受け付けました、改めてご連絡いたします。\n数日経過してもご連絡が無い場合は、\nお手数ですが、ご一報いただけますと幸いです。"
-      redirect_to calendars_path and return
-    end
-  end
 
   # 5ヶ月前と後のデータを削除
   def delete_old_data

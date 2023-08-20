@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_01_015333) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_18_070524) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "calendars", force: :cascade do |t|
     t.date "date"
     t.string "event"
@@ -20,17 +23,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_01_015333) do
 
   create_table "reservations", force: :cascade do |t|
     t.datetime "date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "category"
     t.integer "hour"
     t.integer "minute"
+    t.string "category"
     t.string "name"
     t.string "menu"
     t.string "dayoff"
     t.string "fullhouse"
     t.string "phone"
     t.string "reservename"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end
