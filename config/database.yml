@@ -3,19 +3,29 @@ default: &default
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 20
-  username: postgres # PostgreSQLのユーザー名
-  password: 1987simada # PostgreSQLのパスワード
-  host: localhost
-  port: 5432
 
 development:
   <<: *default
-  database: reservation # 作成したデータベース名
+  username: postgres
+  password: 1987simada
+  host: localhost
+  port: 5432
+  database: reservation
 
 test:
   <<: *default
+  username: postgres
+  password: 1987simada
+  host: localhost
+  port: 5432
   database: reservation_sandbox
 
 production:
   <<: *default
-  database: reservation_production
+  host: dpg-cjgol7j6fquc739gi0n0-a.singapore-postgres.render.com
+  port: 5432
+  database: reservation_0o4v
+  username: reservation_0o4v_user
+  password: DD7qik57EUbrqhdNINOsPhyiPUNKCQAA
+  url: <%= ENV['postgres://reservation_0o4v_user:DD7qik57EUbrqhdNINOsPhyiPUNKCQAA@dpg-cjgol7j6fquc739gi0n0-a/reservation_0o4v'] %>
+
