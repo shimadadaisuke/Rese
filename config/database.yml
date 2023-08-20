@@ -23,7 +23,7 @@ test:
 production:
   <<: *default
   host: dpg-cjgol7j6fquc739gi0n0-a.singapore-postgres.render.com
-  port: 10000
+  port: 5432
   database: reservation_0o4v
   username: reservation_0o4v_user
   password: DD7qik57EUbrqhdNINOsPhyiPUNKCQAA
