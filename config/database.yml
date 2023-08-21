@@ -27,8 +27,7 @@ production:
   database: reservation_0o4v
   username: reservation_0o4v_user
   password: DD7qik57EUbrqhdNINOsPhyiPUNKCQAA
-  url: <%= ENV['postgres://reservation_0o4v_user:DD7qik57EUbrqhdNINOsPhyiPUNKCQAA@dpg-cjgol7j6fquc739gi0n0-a/reservation_0o4v'] %>
-  shimada@DESKTOP-VL1Q84Q:~/Rails/Reservation/config$ cat database.yml
+  url: <%= ENV['postgres://reservation_0o4v_user:DD7qik57EUbrqhdNINOsPhyiPUNKCQAA@dpg-cjgol7j6fquc739gi0n0-a/reservation_0o4v'] %>  
 default: &default
   adapter: postgresql
   encoding: unicode
