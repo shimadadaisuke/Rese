@@ -20,3 +20,5 @@ module RRite
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
+
+config.hosts << 'https://rrite-calender.onrender.com'
