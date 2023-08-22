@@ -26,5 +26,6 @@ Rails.application.routes.draw do
   get '/calendars/user_reservation', to: 'reservations#user', as: :user_reservation
 
   post '/admin/copy_reservations', to: 'admin#copy_reservations', as: :copy_reservations
+  root 'calendars#index'
 
 end
