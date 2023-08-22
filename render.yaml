@@ -1,18 +1,22 @@
 databases:
-  - name: mysite
-    databaseName: mysite
-    user: mysite
+  - name: postgres
+    databaseName: reservation_0o4v
+    user: RRite_Calender
+    region: singapore
+
 
 services:
   - type: web
-    name: mysite
-    runtime: ruby
+    name: RRite_Calender
+    env: ruby
+    region: singapore
+    plan: free
     buildCommand: "./bin/render-build.sh"
     startCommand: "bundle exec puma -C config/puma.rb"
     envVars:
-      - key: DATABASE_URL
+      - key: postgres://reservation_0o4v_user:DD7qik57EUbrqhdNINOsPhyiPUNKCQAA@dpg-cjgol7j6fquc739gi0n0-a/reservation_0o4v
         fromDatabase:
-          name: mysite
+          name: reservation
           property: connectionString
       - key: RAILS_MASTER_KEY
         sync: false
